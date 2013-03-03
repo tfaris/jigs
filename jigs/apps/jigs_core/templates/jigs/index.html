@@ -1,0 +1,25 @@
+<html>
+    <head>
+        <style>
+            .puzzleHead{
+                margin:0px;
+            }
+        </style>
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.min.js"></script>        
+    </head>
+    <body>
+        <ul>
+            {%for puzzle in puzzles%}
+                <li>
+                    <p class='puzzleHead'>Puzzle: {{puzzle.guid}}. {{puzzle.puzzlepiece_set.count}} pieces.</p>
+                    <ul>
+                        {%for sess in puzzle.puzzlesession_set.all%}
+                            <li><a href="/puzzle/{{puzzle.guid}}?session={{sess.guid}}">{{sess.guid}}</a></li>
+                        {%endfor%}
+                        <li><a href="/puzzle/start/{{puzzle.guid}}">Start new session</a></li>
+                    </ul>
+                </li>
+            {%endfor%}
+        </ul>
+    </body>
+</html>   
