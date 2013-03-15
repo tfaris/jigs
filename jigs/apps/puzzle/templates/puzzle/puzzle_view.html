@@ -9,22 +9,24 @@
         </style>
         <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.min.js"></script>        
         <script type="text/javascript">
-            var pieces = [],pieceDict={},
+            var pieces = [],pieceDict={},dirtyPieces=[],
                 cvOrigin = [0,0],mouseStart=[0,0],mouseEnd=[0,0],mouseDown=false,
                 zoom = 1,
                 selectedObject=null;
             function puzzleUpdate()
             {
                 var data = {
-                    session:"{{session.pk}}"
+                    session:"{{session_guid}}"
                 };
-                if (mouseDown){
-                    for (var i=0;i<pieces.length;i++){
-                        var piece = pieces[i];
+                if (true){
+                    for (var i=0;i<dirtyPieces.length;i++){
+                        var piece = dirtyPieces[i];
                         data["sessp"+piece.id] = [piece.offsetX,piece.offsetY];
+                        dirtyPieces.pop();
+                        i--;
                     }
                 }
-                console.log(data);
+
                 $.ajax({
                   type: "POST",
                   url: "status/",
@@ -32,24 +34,15 @@
                   success: function(json){
                         for (var piece_id in json){
                             if (!selectedObject || (selectedObject && piece_id != selectedObject.id)){
-                                var offset = json[piece_id];
-                                pieceDict[piece_id].offsetX = offset[0];
-                                pieceDict[piece_id].offsetY = offset[1];
+                                var updated_piece = json[piece_id];
+                                pieceDict[piece_id].offsetX = updated_piece.pos[0];
+                                pieceDict[piece_id].offsetY = updated_piece.pos[1];
                             }
                         }
                         Draw(puzzle);
                   },
                   dataType: "json"
-                });            
-            
-                //$.getJSON("status/", {session:"{{session.pk}}"}, function(json){
-                //   for (var piece_id in json){
-                //       var offset = json[piece_id];
-                //       pieceDict[piece_id].offsetX = offset[0];
-                //       pieceDict[piece_id].offsetY = offset[1];
-                //   }
-                //   Draw(puzzle);
-                //});
+                });
             }
             function Draw(canvas)
             {
@@ -77,22 +70,23 @@
             }
             $(document).ready(function(){
                 var canvas = $("#puzzle")[0];
-                {%for sess_piece in session.puzzlesessionpiece_set.all%}
+
+                {% for piece_id, data in session_data.items %}
                     var piece={};
                     piece.image = new Image();
-                    piece.image.src = "/media/{{sess_piece.piece.path}}";
-                    piece.id = {{sess_piece.piece.pk}};
-                    piece.offsetX = {{sess_piece.x}};
-                    piece.offsetY = {{sess_piece.y}};
-                    piece.width = {{sess_piece.piece.width}};
-                    piece.height = {{sess_piece.piece.height}};
-                    pieceDict[{{sess_piece.piece.pk}}] = piece;
+                    piece.image.src = "/media/{{ data.path }}";
+                    piece.id = {{ piece_id }};
+                    piece.offsetX = {{ data.pos.0 }};
+                    piece.offsetY = {{ data.pos.1 }};
+                    piece.width = {{ data.size.0 }};
+                    piece.height = {{ data.size.1 }};
+                    pieceDict[{{ piece_id }}] = piece;
                     piece.image.onload = function(){
                         Draw(canvas);
                     }
                     pieces.push(piece);
-                {%endfor%}                
-                
+                {%endfor%}
+
                 $("#puzzle").mousedown(function (e)
                 {    
                     var mouseXY = [e.pageX,e.pageY],
@@ -132,6 +126,10 @@
                         if (selectedObject) {
                             selectedObject.offsetX += diffX/zoom;
                             selectedObject.offsetY += diffY/zoom;
+
+                            if (dirtyPieces.indexOf(selectedObject) < 0){
+                                dirtyPieces.push(selectedObject)
+                            }
                         }
                         else{
                             cvOrigin[0] += diffX*1.5/(zoom>0?zoom:1);
@@ -169,18 +167,11 @@
                     Draw(canvas); 
                 }
                 resizeCanvas();
-                window.setInterval(puzzleUpdate,1000);
+                window.setInterval(puzzleUpdate,100);
             });
         </script>
     </head>
     <body>
-        {%comment%}
-        {%for piece in puzzle.puzzlepiece_set.all%}
-            <img src="/media/{{piece.path}}"/>
-        {%endfor%}
-        {%endcomment%}
-        
-        
         <canvas id="puzzle"></canvas>
     </body>
 </html>   

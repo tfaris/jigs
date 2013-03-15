@@ -1,3 +1,5 @@
 Django==1.5
 South==0.7.6
 psycopg2==2.4.2
+pylibmc==1.2.3
+django-pylibmc-sasl==0.2.4

@@ -9,14 +9,16 @@ from django.conf import settings
 
 import os,shutil,random
 
+
 class Puzzle(models.Model):
     guid = UUIDField.UUIDField(primary_key=True)
     
-    directory = property(fget=lambda p:os.path.join(settings.MEDIA_ROOT,p.guid))
+    directory = property(fget=lambda self:os.path.join(settings.MEDIA_ROOT,self.guid))
     
     def get_piece_paths(self):
         return [os.path.join(self.directory,"%s.jpg"%piece.pk) for piece in self.puzzlepiece_set.all()]
-    
+
+
 class PuzzlePiece(models.Model):
     puzzle = models.ForeignKey(Puzzle)
     x = models.IntegerField()
@@ -24,18 +26,30 @@ class PuzzlePiece(models.Model):
     width = models.IntegerField(default=100)
     height = models.IntegerField(default=100)
     
-    path = property(fget=lambda p:p.puzzle.guid+"/%s.jpg"%p.pk)
-        
+    path = property(fget=lambda self:self.puzzle.guid+"/%s.jpg"%self.pk)
+
+
 class PuzzleSession(models.Model):
     guid = UUIDField.UUIDField(primary_key=True)
     puzzle = models.ForeignKey(Puzzle)
+
+    def create_session_dict(self):
+        d = {}
+        for sess_piece in self.puzzlesessionpiece_set.all():
+            d[str(sess_piece.piece.pk)] = {"pos": (sess_piece.x, sess_piece.y),
+                                           "size": (sess_piece.piece.width, sess_piece.piece.height),
+                                           "locked_by": None,
+                                           "path": sess_piece.piece.path}
+        return d
+
     
 class PuzzleSessionPiece(models.Model):
     session = models.ForeignKey(PuzzleSession)
     piece   = models.ForeignKey(PuzzlePiece)
     x = models.IntegerField()
     y = models.IntegerField()    
-    
+
+
 def start_session(puzzle):
     session = PuzzleSession(puzzle=puzzle)
     session.save()
@@ -50,7 +64,9 @@ def start_session(puzzle):
         session_piece.save()
         possible_points.remove((x,y))
     return session
-    
+
+
+
 def create_puzzle(image_path,piece_width=100,piece_height=100):
     img = Image.open(image_path)
     w,h = piece_width,piece_height
