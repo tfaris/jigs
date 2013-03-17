@@ -1,0 +1,24 @@
+@import "bootstrap.css";
+
+.puzzleHead{
+    margin:0px;
+}
+.span3.puzzleContainer{
+    margin-right: 10px;
+
+    border: 1px solid;
+    box-shadow: 5px 8px 10px #ddd;
+}
+.puzzlePortrait{
+    display: block;
+    margin: 0 auto 0 auto;
+    width: 256px;
+    height: 256px;
+}
+.sessionList.well{
+    margin-bottom: 0px;
+}
+
+.row-fluid{
+    margin-bottom:20px;
+}

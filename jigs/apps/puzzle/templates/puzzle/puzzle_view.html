@@ -95,23 +95,25 @@
                         y = mouseXY[1]/zoom;
                     mouseStart = mouseXY;
                     mouseDown = true;
-                    console.log([x,y]);
-                    for (var i=0;i<pieces.length;i++){
-                        var piece = pieces[i],
-                            bounds = [(cvOrigin[0]+piece.offsetX),(cvOrigin[1]+piece.offsetY),
-                                      (cvOrigin[0]+piece.offsetX+piece.width),(cvOrigin[1]+piece.offsetY+piece.height)];
-                        if (x >= bounds[0] && x <= bounds[2] &&
-                            y >= bounds[1] && y <= bounds[3])
-                            {
-                                pieceHit = true;
-                                selectedObject=piece;
-                                // Move piece to the end of the list so it gets drawn
-                                // on top.
-                                pieces.splice(i,1);
-                                pieces.push(selectedObject);
-                                Draw(canvas);
-                                break;
-                            }
+
+                    if (e.button == 0){
+                        for (var i=0;i<pieces.length;i++){
+                            var piece = pieces[i],
+                                bounds = [(cvOrigin[0]+piece.offsetX),(cvOrigin[1]+piece.offsetY),
+                                          (cvOrigin[0]+piece.offsetX+piece.width),(cvOrigin[1]+piece.offsetY+piece.height)];
+                            if (x >= bounds[0] && x <= bounds[2] &&
+                                y >= bounds[1] && y <= bounds[3])
+                                {
+                                    pieceHit = true;
+                                    selectedObject=piece;
+                                    // Move piece to the end of the list so it gets drawn
+                                    // on top.
+                                    pieces.splice(i,1);
+                                    pieces.push(selectedObject);
+                                    Draw(canvas);
+                                    break;
+                                }
+                        }
                     }
                     if (!pieceHit){
                         selectedObject = null;
