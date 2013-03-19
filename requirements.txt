@@ -1,5 +1,9 @@
 Django==1.5
 South==0.7.6
 psycopg2==2.4.2
+celery==2.5.1
+django-celery==2.5.1
+django-kombu==0.9.4
+gunicorn==0.14.1
 pylibmc==1.2.3
 django-pylibmc-sasl==0.2.4

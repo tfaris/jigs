@@ -5,6 +5,7 @@ from django.http import HttpResponse,Http404
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_exempt
 from django.core.cache import cache
+from django.core.urlresolvers import reverse
 
 import json
 
@@ -12,7 +13,7 @@ import json
 def start_puzzle_session(request, guid):
     puzzle = get_object_or_404(Puzzle,guid=guid)
     session = start_session(puzzle)
-    return redirect("/puzzle/%s?session=%s" % (puzzle.guid,session.guid))
+    return redirect("%s?session=%s" % (reverse("puzzle", args=(guid,)),session.guid))
 
 
 def session_key(session_guid):

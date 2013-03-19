@@ -125,6 +125,9 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'south',
+    'gunicorn',
+    'djcelery',
+    'djkombu',
     'jigs_core',
     'puzzle',
 )
@@ -158,7 +161,6 @@ LOGGING = {
     }
 }
 
-
 def get_cache():
     import os
     try:
@@ -176,8 +178,12 @@ def get_cache():
     except:
         return {
             'default': {
-                'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'
+                #'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'
+                'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+                'LOCATION': 'c:/jigs/cache',
             }
         }
 
 CACHES = get_cache()
+
+from celery_settings import *
