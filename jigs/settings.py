@@ -1,3 +1,5 @@
+import dj_database_url
+
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "apps"))
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "lib"))
@@ -11,17 +13,19 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'jigs',                      # Or path to database file if using sqlite3.
-        # The following settings are not used with sqlite3:
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': '',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-        'PORT': '',                      # Set to empty string for default.
-    }
-}
+DATABASES = {'default': dj_database_url.config(env="JIGS_DATABASE")}
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+#         'NAME': 'jigs',                      # Or path to database file if using sqlite3.
+#         # The following settings are not used with sqlite3:
+#         'USER': 'postgres',
+#         'PASSWORD': 'postgres',
+#         'HOST': '',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+#         'PORT': '',                      # Set to empty string for default.
+#     }
+# }
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
@@ -86,7 +90,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'z_vy@mfv&&wc_v!!u!5(b_qvpt_0g4i*w#*u@muto&1gvy0r7i'
+SECRET_KEY = os.environ['JIGS_SECRET'] or 'shh'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -161,6 +165,7 @@ LOGGING = {
     }
 }
 
+
 def get_cache():
     import os
     try:
@@ -180,7 +185,7 @@ def get_cache():
             'default': {
                 #'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'
                 'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-                'LOCATION': 'c:/jigs/cache',
+                'LOCATION': os.environ['JIGS_CACHE'],
             }
         }
 
